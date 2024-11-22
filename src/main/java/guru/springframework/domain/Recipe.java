@@ -2,6 +2,7 @@ package guru.springframework.domain;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -12,11 +13,13 @@ public class Recipe {
     private Long id;
 
     private String description;
-    private Integer prepTime;
-    private Integer cookTime;
-    private Integer servings;
+    private String prepTime;
+    private String cookTime;
+    private String servings;
     private String source;
     private String url;
+
+    @Lob
     private String directions;
 
     @Enumerated(value = EnumType.STRING)
@@ -29,13 +32,21 @@ public class Recipe {
     private Notes notes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
-    private Set<Ingredient> ingredients;
+    private Set<Ingredient> ingredients = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "recipe_category",
         joinColumns = @JoinColumn(name = "recipe_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> categories;
+    private Set<Category> categories = new HashSet<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDescription() {
         return description;
@@ -45,27 +56,27 @@ public class Recipe {
         this.description = description;
     }
 
-    public Integer getPrepTime() {
+    public String getPrepTime() {
         return prepTime;
     }
 
-    public void setPrepTime(Integer prepTime) {
+    public void setPrepTime(String prepTime) {
         this.prepTime = prepTime;
     }
 
-    public Integer getCookTime() {
+    public String getCookTime() {
         return cookTime;
     }
 
-    public void setCookTime(Integer cookTime) {
+    public void setCookTime(String cookTime) {
         this.cookTime = cookTime;
     }
 
-    public Integer getServings() {
+    public String getServings() {
         return servings;
     }
 
-    public void setServings(Integer servings) {
+    public void setServings(String servings) {
         this.servings = servings;
     }
 
@@ -115,6 +126,13 @@ public class Recipe {
 
     public void setNotes(Notes notes) {
         this.notes = notes;
+        notes.setRecipe(this);
+    }
+
+    public Recipe addIngredient(Ingredient ingredient) {
+        ingredient.setRecipe(this);
+        this.ingredients.add(ingredient);
+        return this;
     }
 
     public Set<Ingredient> getIngredients() {
